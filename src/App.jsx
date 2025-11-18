@@ -14,9 +14,9 @@ function shuffle(array) {
 
 function distribuirBalanceadoPorNivel(jogadores, totalTimes = 3) {
   // Separar por nível
-  const n1 = jogadores.filter(j => j.nivel === 1);
-  const n2 = jogadores.filter(j => j.nivel === 2);
-  const n3 = jogadores.filter(j => j.nivel === 3);
+  const n1 = jogadores.filter((j) => j.nivel === 1);
+  const n2 = jogadores.filter((j) => j.nivel === 2);
+  const n3 = jogadores.filter((j) => j.nivel === 3);
 
   // Embaralhar cada nível
   const s1 = shuffle(n1);
@@ -68,9 +68,9 @@ export default function App() {
 
   const totaisPorNivel = useMemo(() => {
     return {
-      n1: jogadores.filter(j => j.nivel === 1).length,
-      n2: jogadores.filter(j => j.nivel === 2).length,
-      n3: jogadores.filter(j => j.nivel === 3).length,
+      n1: jogadores.filter((j) => j.nivel === 1).length,
+      n2: jogadores.filter((j) => j.nivel === 2).length,
+      n3: jogadores.filter((j) => j.nivel === 3).length,
     };
   }, [jogadores]);
 
@@ -87,17 +87,22 @@ export default function App() {
       return;
     }
     // evitar duplicado exato de nome
-    if (jogadores.some(j => j.nome.toLowerCase() === nomeTrim.toLowerCase())) {
+    if (
+      jogadores.some((j) => j.nome.toLowerCase() === nomeTrim.toLowerCase())
+    ) {
       setError("Já existe um jogador com esse nome.");
       return;
     }
-    setJogadores(prev => [...prev, { id: crypto.randomUUID(), nome: nomeTrim, nivel: Number(nivel) }]);
+    setJogadores((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), nome: nomeTrim, nivel: Number(nivel) },
+    ]);
     setNome("");
     setNivel(2);
   }
 
   function removerJogador(id) {
-    setJogadores(prev => prev.filter(j => j.id !== id));
+    setJogadores((prev) => prev.filter((j) => j.id !== id));
   }
 
   function limparTudo() {
@@ -110,140 +115,134 @@ export default function App() {
   function sortearTimes() {
     setError("");
     if (jogadores.length < totalTimes) {
-      setError(`É necessário pelo menos ${totalTimes} jogadores para formar ${totalTimes} times.`);
+      setError(
+        `É necessário pelo menos ${totalTimes} jogadores para formar ${totalTimes} times.`
+      );
       return;
     }
     const times = distribuirBalanceadoPorNivel(jogadores, totalTimes);
     setResultado(times);
   }
 
-  function exportarCSV() {
-    const linhas = [["Time", "Nome", "Nível"]];
-    if (resultado) {
-      resultado.forEach(t => {
-        t.jogadores.forEach(j => {
-          linhas.push([t.nome, j.nome, j.nivel]);
-        });
-      });
-    } else {
-      // exporta lista de jogadores caso não tenha sorteio ainda
-      jogadores.forEach(j => linhas.push(["-", j.nome, j.nivel]));
-    }
-    const csv = linhas.map(l => l.map(c => `"${String(c).replaceAll('"', '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = resultado ? "times_sorteados.csv" : "jogadores.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function importarCSV(evt) {
-    const file = evt.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        // CSV esperado: Nome,Nivel (cabeçalho opcional)
-        const text = String(reader.result);
-        const linhas = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const novos = [];
-        for (let i = 0; i < linhas.length; i++) {
-          const linha = linhas[i];
-          const partes = linha.split(",").map(s => s.replace(/^"|"$/g, "").trim());
-          if (i === 0 && /nome/i.test(partes[0]) && /nivel/i.test(partes[1] ?? "")) {
-            continue; // pular cabeçalho
-          }
-          const n = partes[0];
-          const lvl = Number(partes[1]);
-          if (!n || ![1, 2, 3].includes(lvl)) continue;
-          novos.push({ id: crypto.randomUUID(), nome: n, nivel: lvl });
-        }
-        if (novos.length === 0) {
-          setError("CSV vazio ou em formato inválido. Esperado: Nome,Nivel");
-          return;
-        }
-        setJogadores(prev => {
-          // evita duplicatas por nome
-          const nomesExistentes = new Set(prev.map(j => j.nome.toLowerCase()));
-          const filtrados = novos.filter(n => !nomesExistentes.has(n.nome.toLowerCase()));
-          return [...prev, ...filtrados];
-        });
-      } catch (e) {
-        setError("Falha ao importar CSV.");
-      } finally {
-        evt.target.value = "";
-      }
-    };
-    reader.readAsText(file, "utf-8");
-  }
-
   return (
-    <div style={{ maxWidth: 980, margin: "24px auto", padding: 16, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+    <div
+      style={{
+        maxWidth: 980,
+        margin: "24px auto",
+        padding: 16,
+        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+      }}
+    >
       <Titulo />
 
       <section style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-        <form onSubmit={adicionarJogador} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 8, alignItems: "end" }}>
+        <form onSubmit={adicionarJogador} className="form-jogador">
           <div>
-            <label style={{ display: "flex", alignItems: "center", gap: 6 }}><PersonStanding size={18} color="#a78140ff" />Jogador</label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <PersonStanding size={18} color="#a78140ff" />
+              Jogador
+            </label>
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="Ex.: Lucas, Ana, João"
+              placeholder="Ex.: Sapita, Jhon, Garay"
               style={{ width: "100%", padding: 8 }}
             />
           </div>
           <div>
-            <Nivel/>
-            <select value={nivel} onChange={(e) => setNivel(Number(e.target.value))} style={{ width: "100%", padding: 8 }}>
+            <Nivel />
+            <select
+              value={nivel}
+              onChange={(e) => setNivel(Number(e.target.value))}
+              style={{ width: "100%", padding: 8 }}
+            >
               <option value={1}>1</option>
               <option value={2}>2</option>
               <option value={3}>3</option>
             </select>
           </div>
-          <button type="submit" style={{ padding: "8px 12px" }}>Adicionar</button>
+          <button type="submit" className="btn-add">Adicionar</button>
         </form>
 
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <div>
             <label>Total de times</label>{" "}
-            <select value={totalTimes} onChange={(e) => setTotalTimes(Number(e.target.value))}>
+            <select
+              value={totalTimes}
+              onChange={(e) => setTotalTimes(Number(e.target.value))}
+            >
               <option value={2}>2</option>
               <option value={3}>3</option>
               <option value={4}>4</option>
             </select>
           </div>
           <button onClick={sortearTimes}>Sortear times</button>
-          <button onClick={exportarCSV}>Exportar CSV</button>
-          <label style={{ cursor: "pointer", display: "inline-flex", gap: 8, alignItems: "center" }}>
-            <span style={{ border: "1px solid #ccc", padding: "6px 10px", borderRadius: 4 }}>Importar CSV</span>
-            <input type="file" accept=".csv" onChange={importarCSV} style={{ display: "none" }} />
-          </label>
-          <button onClick={limparTudo} style={{ marginLeft: "auto", color: "#b00020" }}>Limpar</button>
+
+          <label
+            style={{
+              cursor: "pointer",
+              display: "inline-flex",
+              gap: 8,
+              alignItems: "center",
+            }}
+          ></label>
+          <button
+            onClick={limparTudo}
+            style={{ marginLeft: "auto", color: "#b00020" }}
+          >
+            Limpar
+          </button>
         </div>
 
         {error && <div style={{ color: "#b00020" }}>{error}</div>}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-          <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }} >Nível 1 <Shield color="#07f31eff" size={24} /> — {totaisPorNivel.n1} <PersonStanding size={24} color="#a78140ff" /></h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 16,
+          }}
+        >
+          <div
+            style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}
+          >
+            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              Nível 1 <Shield color="#07f31eff" size={24} /> —{" "}
+              {totaisPorNivel.n1} <PersonStanding size={24} color="#a78140ff" />
+            </h3>
             <ListaJogadores
-              jogadores={jogadores.filter(j => j.nivel === 1)}
+              jogadores={jogadores.filter((j) => j.nivel === 1)}
               onRemove={removerJogador}
             />
           </div>
-          <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>Nível 2 <Shield color="#070ff3ff" size={24} /> — {totaisPorNivel.n2} <PersonStanding size={24} color="#a78140ff" /></h3>
+          <div
+            style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}
+          >
+            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              Nível 2 <Shield color="#070ff3ff" size={24} /> —{" "}
+              {totaisPorNivel.n2} <PersonStanding size={24} color="#a78140ff" />
+            </h3>
             <ListaJogadores
-              jogadores={jogadores.filter(j => j.nivel === 2)}
+              jogadores={jogadores.filter((j) => j.nivel === 2)}
               onRemove={removerJogador}
             />
           </div>
-          <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>Nível 3 <Shield color="#f3eb07ff" size={24} /> — {totaisPorNivel.n3} <PersonStanding size={24} color="#a78140ff" /></h3>
+          <div
+            style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}
+          >
+            <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              Nível 3 <Shield color="#f3eb07ff" size={24} /> —{" "}
+              {totaisPorNivel.n3} <PersonStanding size={24} color="#a78140ff" />
+            </h3>
             <ListaJogadores
-              jogadores={jogadores.filter(j => j.nivel === 3)}
+              jogadores={jogadores.filter((j) => j.nivel === 3)}
               onRemove={removerJogador}
             />
           </div>
@@ -252,14 +251,30 @@ export default function App() {
         {resultado && (
           <div style={{ marginTop: 16 }}>
             <h2>Resultado do sorteio</h2>
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${resultado.length}, 1fr)`, gap: 16 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${resultado.length}, 1fr)`,
+                gap: 16,
+              }}
+            >
               {resultado.map((t, idx) => (
-                <div key={idx} style={{ border: "2px solid #333", borderRadius: 8, padding: 12 }}>
+                <div
+                  key={idx}
+                  style={{
+                    border: "2px solid #333",
+                    borderRadius: 8,
+                    padding: 12,
+                  }}
+                >
                   <h3>{t.nome}</h3>
                   <ul>
-                    {t.jogadores.map(j => (
+                    {t.jogadores.map((j) => (
                       <li key={j.id}>
-                        {j.nome} <small style={{ color: "#666" }}>(Nível {j.nivel})</small>
+                        {j.nome}{" "}
+                        <small style={{ color: "#666" }}>
+                          (Nível {j.nivel})
+                        </small>
                       </li>
                     ))}
                   </ul>
@@ -274,18 +289,33 @@ export default function App() {
 }
 
 function ListaJogadores({ jogadores, onRemove }) {
-  if (jogadores.length === 0) return <p style={{ color: "#777" }}>Sem jogadores neste nível.</p>;
+  if (jogadores.length === 0)
+    return <p style={{ color: "#777" }}>Sem jogadores neste nível.</p>;
   return (
     <ul style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
       {jogadores
         .slice()
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
-        .map(j => (
-        <li key={j.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed #eee" }}>
-          <span>{j.nome}</span>
-          <button onClick={() => onRemove(j.id)} title="Remover" style={{ color: "#b00020" }}>×</button>
-        </li>
-      ))}
+        .map((j) => (
+          <li
+            key={j.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "6px 0",
+              borderBottom: "1px dashed #eee",
+            }}
+          >
+            <span>{j.nome}</span>
+            <button
+              onClick={() => onRemove(j.id)}
+              title="Remover"
+              style={{ color: "#b00020" }}
+            >
+              ×
+            </button>
+          </li>
+        ))}
     </ul>
   );
 }
