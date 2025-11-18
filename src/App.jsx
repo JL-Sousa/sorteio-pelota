@@ -183,7 +183,7 @@ export default function App() {
               <option value={4}>4</option>
             </select>
           </div>
-          <button onClick={sortearTimes}>Sortear times</button>
+          <button className="btn-times" onClick={sortearTimes}>Sortear times</button>
 
           <label
             style={{

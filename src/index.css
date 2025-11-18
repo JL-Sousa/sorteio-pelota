@@ -35,6 +35,12 @@ h1 {
   line-height: 1.1;
 }
 
+.btn-times {
+  color: #20de0f;
+  text-transform: uppercase;
+}
+
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -70,9 +76,6 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 .form-jogador {
@@ -93,6 +96,8 @@ button:focus-visible {
   .form-jogador .btn-add {
     width: 100%;
     padding: 10px 12px;
+    background-color: #5207c1;
+    
   }
 
   .titulo {   
