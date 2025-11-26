@@ -62,7 +62,7 @@ export default function App() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState("");
 
-   const resultadoRef = useRef(null);
+  const resultadoRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem("pelada-jogadores", JSON.stringify(jogadores));
@@ -125,12 +125,10 @@ export default function App() {
     const times = distribuirBalanceadoPorNivel(jogadores, totalTimes);
     setResultado(times);
 
-    
-// Aguarda renderização e faz scroll
-  setTimeout(() => {
-    resultadoRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, 100);
-
+    // Aguarda renderização e faz scroll
+    setTimeout(() => {
+      resultadoRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   return (
@@ -170,7 +168,9 @@ export default function App() {
               <option value={3}>3</option>
             </select>
           </div>
-          <button type="submit" className="btn-add">Adicionar</button>
+          <button type="submit" className="btn-add">
+            Adicionar
+          </button>
         </form>
 
         <div
@@ -192,7 +192,9 @@ export default function App() {
               <option value={4}>4</option>
             </select>
           </div>
-          <button className="btn-times" onClick={sortearTimes}>Sortear times</button>
+          <button className="btn-times" onClick={sortearTimes}>
+            Sortear times
+          </button>
 
           <label
             style={{
@@ -282,7 +284,16 @@ export default function App() {
                       <li key={j.id}>
                         {j.nome}{" "}
                         <small style={{ color: "#666" }}>
-                          (Nível {j.nivel})
+                          <Shield
+                            color={
+                              j.nivel === 1
+                                ? "#07f31eff"
+                                : j.nivel === 2
+                                ? "#070ff3ff"
+                                : "#f3eb07ff"
+                            }
+                            size={18}
+                          />
                         </small>
                       </li>
                     ))}
