@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { PersonStanding, Shield } from "lucide-react";
 import Titulo from "./components/Titulo";
 import Nivel from "./components/Nivel";
@@ -62,6 +62,8 @@ export default function App() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState("");
 
+   const resultadoRef = useRef(null);
+
   useEffect(() => {
     localStorage.setItem("pelada-jogadores", JSON.stringify(jogadores));
   }, [jogadores]);
@@ -122,6 +124,13 @@ export default function App() {
     }
     const times = distribuirBalanceadoPorNivel(jogadores, totalTimes);
     setResultado(times);
+
+    
+// Aguarda renderização e faz scroll
+  setTimeout(() => {
+    resultadoRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+
   }
 
   return (
@@ -249,7 +258,7 @@ export default function App() {
         </div>
 
         {resultado && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 16 }} ref={resultadoRef}>
             <h2>Resultado do sorteio</h2>
             <div
               style={{
